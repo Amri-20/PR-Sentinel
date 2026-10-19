@@ -1,4 +1,5 @@
-from agents.code_reviewer import review_code_diff
+from agents.code_reviewer import review_code_diff,CodeReview
+from pydantic import ValidationError
 
 def validate_input(state):
     filename=state.get("filename")
@@ -37,12 +38,27 @@ def review_code(state):
 def validate_review(state):
     review=state.get("review")
 
-    if not review:
+    if not isinstance(review,dict):
         return {
             "status":"Failed",
-            "error":"Code review did not produce a valid result"
+            "error":"Review output must be a dictionary"
         }
 
-    return {
-        "status":"Completed"
-    }
+    try:
+        validate_review=CodeReview.model_validate(review)
+
+        return {
+            "review":validate_review.model_dump(),
+            "status":"completed",
+            "error":None
+        }
+
+    except ValidationError as e:
+        return{
+            "status":"failed",
+            "error":f"Invalid review output: {e}"
+        }
+
+    # return {
+    #     "status":"Completed"
+    # }
