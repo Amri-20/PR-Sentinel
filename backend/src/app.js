@@ -7,6 +7,8 @@ import { rateLimit } from "express-rate-limit";
 import authRoutes from "./routes/auth.routes.js";
 import githubRoutes from "./routes/github.routes.js";
 import userRouter from "./routes/user.routes.js";
+import repositoryRoutes from "./routes/repository.routes.js";
+
 
 const app = express();
 
@@ -61,6 +63,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/github", githubRoutes);
+app.use("/api/repositories", repositoryRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -97,7 +100,5 @@ app.use((err, req, res, next) => {
 });
 
 // app.use(cookieParser());
-
-
 
 export { app };
