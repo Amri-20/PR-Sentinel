@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { ApiError } from "./ApiError";
+import { ApiError } from "./ApiError.js";
 import { buffer } from "stream/consumers";
 
 const ALGORITHM = "aes-256-gcm";

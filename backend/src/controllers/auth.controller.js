@@ -1,7 +1,8 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-import { encryptToken } from "../utils/tokenEncryption.js";
+// import { encryptToken } from "../utils/tokenEncryption.js";
+import { encryptionToken } from "../utils/tokenEncryption.utils.js";
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 

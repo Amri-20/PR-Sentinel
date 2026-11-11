@@ -21,19 +21,19 @@ export const getGitHubClient = async (userId) => {
         "X-GitHub-Api-Version": "2022-11-28",
       },
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+
+      const error = new ApiError(
+        401,
+        errorData.message || "Github API request failed",
+      );
+
+      error.statuscode = response.status;
+      throw error;
+    }
+
+    return response.json();
   };
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-
-    const error = new ApiError(
-      401,
-      errorData.message || "Github API request failed",
-    );
-
-    error.statuscode = response.status;
-    throw error;
-  }
-
-  return response.json();
 };
