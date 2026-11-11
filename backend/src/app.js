@@ -59,7 +59,7 @@ app.get("/api/health", (req, res) => {
 
 // Routes
 app.use("/api/v1/users", userRouter);
-app.use("/api/auth", authRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/github", githubRoutes);
 // 404 handler
 app.use((req, res) => {

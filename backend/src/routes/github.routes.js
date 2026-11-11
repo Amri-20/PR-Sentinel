@@ -11,7 +11,7 @@ const router = express.Router();
 router.use(verifyJWT);
 
 router.get("/repos", getRepositories);
-router.get("/repos/:owner/:repo/:pulls", getPullRequests);
-router.get("/repos/:pwner/:repo/:pulls/:number/:files", getPullRequestFiles);
+router.get("/repos/:owner/:repo/pulls", getPullRequests);
+router.get("/repos/:owner/:repo/pulls/:number/files", getPullRequestFiles);
 
 export default router;

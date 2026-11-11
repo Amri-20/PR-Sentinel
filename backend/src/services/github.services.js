@@ -5,19 +5,19 @@ import { decryptToken } from "../utils/tokenEncryption.utils.js";
 const GITHUB_API = "https://api.github.com";
 
 export const getGitHubClient = async (userId) => {
-  const user = await User.findById(userId).select(".githubAcessToken");
+  const user = await User.findById(userId).select("+githubAccessToken");
 
   if (!user) {
     throw new ApiError(400, "Connected Github account not found");
   }
 
-  const acessToken = decryptToken(user.githubAcessToken);
+  const accessToken = decryptToken(user.githubAccessToken);
 
   return async (endpoint) => {
     const response = await fetch(`${GITHUB_API}${endpoint}`, {
       headers: {
-        Authorisation: `Bearer ${acessToken}`,
-        Acept: "application/vnd.github+json",
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
       },
     });
@@ -30,7 +30,7 @@ export const getGitHubClient = async (userId) => {
         errorData.message || "Github API request failed",
       );
 
-      error.statuscode = response.status;
+      error.statusCode = response.status;
       throw error;
     }
 

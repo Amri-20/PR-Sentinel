@@ -4,8 +4,8 @@ export const verifyJWT = (req, res, next) => {
   try {
     const token = req.cookies?.token;
     if (!token) {
-      return req.status(401).json({
-        sucess: false,
+      return res.status(401).json({
+        success: false,
         message: "Authentication required",
       });
     }
@@ -14,8 +14,8 @@ export const verifyJWT = (req, res, next) => {
     req.userId = decoded.userId;
     next();
   } catch (error) {
-    return req.status(401).json({
-      sucess: false,
+    return res.status(401).json({
+      success: false,
       message: "Invalid or expired session",
     });
   }
