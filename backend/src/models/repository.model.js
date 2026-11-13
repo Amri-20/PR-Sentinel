@@ -23,9 +23,9 @@ const repositoriesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    decryption: {
+    description: {
       type: String,
-      required: true,
+      default: "",
     },
     htmlUrl: {
       type: String,
@@ -64,7 +64,7 @@ const repositoriesSchema = new mongoose.Schema(
   },
 );
 
-repositorySchema.index(
+repositoriesSchema.index(
   {
     user: 1,
     githubRepoId: 1,
@@ -73,4 +73,4 @@ repositorySchema.index(
 );
 
 
-export const Repository=mongoose.model("Repository",repositoriesSchema)
+export const Repository = mongoose.model("Repository", repositoriesSchema);

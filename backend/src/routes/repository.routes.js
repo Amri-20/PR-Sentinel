@@ -1,17 +1,17 @@
 import express from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   selectRepository,
-  getSelectedRepositoriesController,
+  getSelectedRepositoryController,
   deleteSelectedRepository,
-} from "../controllers/repositories.controller.js";
+} from "../controllers/repository.controller.js";
 
 const router = express.Router();
 
 router.use(verifyJWT);
 
-router.get("/selected", getSelectedRepositoriesController);
-router.get("/select", selectRepository);
-router.get("/:id", deleteSelectedRepository);
+router.get("/selected", getSelectedRepositoryController);
+router.post("/select", selectRepository);
+router.delete("/:id", deleteSelectedRepository);
 
 export default router;

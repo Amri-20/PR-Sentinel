@@ -35,7 +35,6 @@ function App() {
 
   const initialize = useCallback(async () => {
     try {
-      setLoading(true);
       setError("");
 
       const response = await api.get("/v1/auth/me");
@@ -55,8 +54,13 @@ function App() {
   }, [fetchRepositories]);
 
   useEffect(() => {
-    initialize();
+    void Promise.resolve().then(initialize);
   }, [initialize]);
+
+  const refresh = () => {
+    setLoading(true);
+    initialize();
+  };
 
   const connectGitHub = () => {
     window.location.href = "/api/v1/auth/github";
@@ -72,7 +76,7 @@ function App() {
       setPullRequests([]);
       setSelectedPR(null);
       setFiles([]);
-    } catch (err) {
+    } catch {
       setError("Unable to logout");
     }
   };
@@ -196,7 +200,7 @@ function App() {
           </div>
 
           <button
-            onClick={initialize}
+            onClick={refresh}
             className="flex items-center gap-2 text-sm bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg"
           >
             <RefreshCw size={16} />

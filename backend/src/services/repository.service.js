@@ -1,14 +1,14 @@
-import { Repository } from "../models/repository.model";
-import { ApiError } from "../utils/ApiError";
+import { Repository } from "../models/repository.model.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const saveSelectedRepository = async (userId, repo) => {
   const repositoryData = {
     user: userId,
     githubRepoId: repo.id,
     name: repo.name,
-    fullName: repo.fullName,
+    fullName: repo.full_name,
     ownerLogin: repo.owner.login,
-    description: repo.description.repo || "",
+    description: repo.description || "",
     htmlUrl: repo.html_url,
     language: repo.language || null,
     isPrivate: repo.private,
@@ -29,14 +29,14 @@ const saveSelectedRepository = async (userId, repo) => {
     {
       new: true,
       upsert: true,
-      renValidators: true,
+      runValidators: true,
     },
   );
 
   return repository;
 };
 
-const getSecectedRepositories = async (userId) => {
+const getSelectedRepositories = async (userId) => {
   return await Repository.find({ user: userId }).sort({ updatedAt: -1 });
 };
 
@@ -55,6 +55,6 @@ const removeSelectedRepository = async (userId, repositoryId) => {
 
 export {
   saveSelectedRepository,
-  getSecectedRepositories,
+  getSelectedRepositories,
   removeSelectedRepository,
 };

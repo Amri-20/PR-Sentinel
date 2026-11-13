@@ -1,10 +1,10 @@
-import { getGitHubClient } from "../services/github.services";
+import { getGitHubClient } from "../services/github.services.js";
 import {
   saveSelectedRepository,
-  getSecectedRepositories,
+  getSelectedRepositories,
   removeSelectedRepository,
-} from "../services/repository.service";
-import { ApiError } from "../utils/ApiError";
+} from "../services/repository.service.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const selectRepository = async (req, res, next) => {
   try {
@@ -21,8 +21,8 @@ const selectRepository = async (req, res, next) => {
     );
     const repository = await saveSelectedRepository(req.userId, repositoryData);
 
-    return req.status(200).json({
-      sucess: true,
+    return res.status(200).json({
+      success: true,
       message: "Repository selected successfully",
       repository,
     });
@@ -33,10 +33,10 @@ const selectRepository = async (req, res, next) => {
 
 const getSelectedRepositoryController = async (req, res, next) => {
   try {
-    const repositories = await getSecectedRepositories(Request.userId);
+    const repositories = await getSelectedRepositories(req.userId);
 
     return res.status(200).json({
-      sucess: true,
+      success: true,
       count: repositories.length,
       repositories,
     });
@@ -51,7 +51,7 @@ const deleteSelectedRepository = async (req, res, next) => {
     const repository = await removeSelectedRepository(req.userId, id);
 
     return res.status(200).json({
-      sucesstrue,
+      success: true,
       message: "Repository removed successfully",
       repository,
     });
@@ -60,7 +60,7 @@ const deleteSelectedRepository = async (req, res, next) => {
   }
 };
 
-return {
+export {
   selectRepository,
   getSelectedRepositoryController,
   deleteSelectedRepository,
