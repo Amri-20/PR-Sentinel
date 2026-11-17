@@ -8,7 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import githubRoutes from "./routes/github.routes.js";
 import userRouter from "./routes/user.routes.js";
 import repositoryRoutes from "./routes/repository.routes.js";
-
+import reviewRoutes from "./routes/review.routes.js";
 
 const app = express();
 
@@ -64,6 +64,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/github", githubRoutes);
 app.use("/api/repositories", repositoryRoutes);
+app.use("/api/reviews", reviewRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
