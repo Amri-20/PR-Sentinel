@@ -1,4 +1,4 @@
-import { getGithubClient } from "../services/github.services.js";
+import { getGitHubClient } from "../services/github.services.js";
 import { runCodeReview } from "../services/ai.service.js";
 import { ApiError } from "../utils/ApiError.js";
 
@@ -9,7 +9,7 @@ const reviewPullRequest = async (req, res, next) => {
       throw new ApiError(400, "Invalid pull request number");
     }
 
-    const github = await getGithubClient(req.userId);
+    const github = await getGitHubClient(req.userId);
 
     const files = await github(
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100`,

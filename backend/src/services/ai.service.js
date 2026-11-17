@@ -1,16 +1,16 @@
 import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 import { diff } from "util";
-import { app } from "../app";
+import { app } from "../app.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const AI_ENGINE_DIR = path.resolve(__dirname, "../../../ai-engine");
 
-const PYTHON_PATH = Path2D.JOIN(AI_ENGINE_DIR, "venv", "Scripts", "python.exe");
+const PYTHON_PATH = path.join(AI_ENGINE_DIR, "venv", "Scripts", "python.exe");
 
 const MAIN_SCRIPT = path.join(AI_ENGINE_DIR, "main.py");
 
@@ -55,10 +55,10 @@ export const runCodeReview = (filename, dir) => {
     });
 
     python.on("error", (error) => {
-      finish(new ApiError(500, `Failed to start python: $(error.message)`));
+      finish(new ApiError(500, `Failed to start python: ${error.message}`));
     });
 
-    python.on("close", (close) => {
+    python.on("close", (code) => {
       if (code != 0) {
         return finish(
           new ApiError(

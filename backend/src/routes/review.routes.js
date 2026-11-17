@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { reviewPullRequest } from "../controllers/review.controller.js";
 
 const router = express.Router();

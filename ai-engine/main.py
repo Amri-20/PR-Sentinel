@@ -1,23 +1,49 @@
 import json
 import sys
+import os
 from graph.workflow import review_graph
 
-def run_code_review(filename,diff):
-    initial_state={
-        "filename":filename,
-        "diff":diff,
-        "review":None,
-        "error":None,
-        "status":"pending"
+
+def run_code_review(filename, diff):
+
+    # Temporary mock mode for integration testing
+    if os.getenv("PR_SENTINEL_MOCK_AI") == "true":
+        return {
+            "status": "completed",
+            "review": {
+                "summary": "Mock code review completed successfully.",
+                "findings": [
+                    {
+                        "severity": "high",
+                        "category": "security",
+                        "file": filename,
+                        "line": None,
+                        "title": "SQL Injection vulnerability",
+                        "description": "User input is directly concatenated into an SQL query.",
+                        "suggested_fix": "Use parameterized SQL queries."
+                    }
+                ]
+            },
+            "error": None
+        }
+
+    initial_state = {
+        "filename": filename,
+        "diff": diff,
+        "review": None,
+        "error": None,
+        "status": "pending"
     }
 
-    result=review_graph.invoke(initial_state)
+    result = review_graph.invoke(initial_state)
 
     return {
-        "status":result.get("status"),
-        "review":result.get("review"),
-        "error":result.get("error")
+        "status": result.get("status"),
+        "review": result.get("review"),
+        "error": result.get("error")
     }
+
+
 
 if __name__=="__main__":
     try:
