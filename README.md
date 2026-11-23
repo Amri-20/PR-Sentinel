@@ -49,6 +49,9 @@ http://localhost:5000
 Health endpoint:
 http://localhost:5000/api/health
 
-## Project Status
+API routes use the `/api/v1` prefix. Before starting the backend, configure
+`MONGODB_URI`, `JWT_SECRET`, `ENCRYPTION_KEY`, GitHub OAuth credentials, and
+`FRONTEND_URL` in `backend/.env`. Configure `GOOGLE_API_KEY` (and optionally
+`GEMINI_MODEL`) in `ai-engine/.env`. If omitted, the AI engine uses
+`gemini-3.8-flash`.
 
-Day 1: Project foundation and infrastructure.

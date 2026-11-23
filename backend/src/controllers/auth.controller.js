@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 // import { encryptToken } from "../utils/tokenEncryption.js";
 import { encryptToken } from "../utils/tokenEncryption.utils.js";
 
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const cookieOptions = {
   httpOnly: true,

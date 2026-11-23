@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
       setUser(response.data.user);
       return response.data.user;
     } catch (err) {
-      if (err.response?.status === 401) setUser(null);
+      if ([401, 404].includes(err.response?.status)) setUser(null);
       else setError(err.response?.data?.message || "Unable to load dashboard");
       return null;
     } finally {

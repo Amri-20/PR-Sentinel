@@ -2,21 +2,23 @@ import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import { ApiError } from "../utils/ApiError.js";
-import { diff } from "util";
-import { app } from "../app.js";
+// import { diff } from "util";
+// import { app } from "../app.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const AI_ENGINE_DIR = path.resolve(__dirname, "../../../ai-engine");
 
-const PYTHON_PATH = path.join(AI_ENGINE_DIR, "venv", "Scripts", "python.exe");
+// const PYTHON_PATH = path.join(AI_ENGINE_DIR, "venv", "Scripts", "python.exe");
+
+const PYTHON_PATH = path.join(AI_ENGINE_DIR, ".venv", "Scripts", "python.exe");
 
 const MAIN_SCRIPT = path.join(AI_ENGINE_DIR, "main.py");
 
-export const runCodeReview = (filename, dir) => {
+export const runCodeReview = (filename, codeDiff) => {
   return new Promise((resolve, reject) => {
-    if (!filename || !diff) {
+    if (!filename || !codeDiff) {
       return reject(new ApiError(400, "Filename and code diff are required"));
     }
 
@@ -89,6 +91,7 @@ export const runCodeReview = (filename, dir) => {
       );
     });
 
-    python.stdin.end(JSON.stringify({ filename, diff }));
+    // python.stdin.end(JSON.stringify({ filename, diff }));
+    python.stdin.end(JSON.stringify({ filename, diff: codeDiff }));
   });
 };

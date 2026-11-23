@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.use(verifyJWT);
 
-router.post(":owner/:repo/pulls/:number", reviewPullRequest);
+router.post("/:owner/:repo/pulls/:number", reviewPullRequest);
 
 export default router;

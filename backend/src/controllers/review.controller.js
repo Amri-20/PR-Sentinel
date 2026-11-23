@@ -1,10 +1,11 @@
 import { getGitHubClient } from "../services/github.services.js";
 import { runCodeReview } from "../services/ai.service.js";
 import { ApiError } from "../utils/ApiError.js";
+import Review from "../models/review.model.js";
 
 const reviewPullRequest = async (req, res, next) => {
   try {
-    const { owner, repo, router } = req.params;
+    const { owner, repo, number } = req.params;
     if (!/^\d+$/.test(number)) {
       throw new ApiError(400, "Invalid pull request number");
     }
@@ -37,16 +38,43 @@ const reviewPullRequest = async (req, res, next) => {
       });
     }
 
+    const persistedResults = reviewResults.map((result) => ({
+      filename: result.filename,
+      status: result.status,
+      reason: result.reason || null,
+      summary: result.review?.summary || null,
+      findings: (result.review?.findings || []).map((finding) => ({
+        severity: finding.severity,
+        category: finding.category,
+        file: finding.file,
+        line: finding.line,
+        title: finding.title,
+        description: finding.description,
+        suggestedFix: finding.suggested_fix,
+      })),
+    }));
+
+    await Review.findOneAndUpdate(
+      {
+        user: req.userId,
+        owner,
+        repository: repo,
+        pullRequestNumber: Number(number),
+      },
+      { $set: { results: persistedResults } },
+      { new: true, upsert: true, runValidators: true },
+    );
+
     return res.status(200).json({
-      sucess: true,
+      success: true,
       message: "Pull request review completed",
       pullRequest: {
         owner,
         repo,
         number: Number(number),
       },
-      count:reviewResults.length,
-      results:reviewResults
+      count: reviewResults.length,
+      results: reviewResults,
     });
   } catch (error) {
     next(error);

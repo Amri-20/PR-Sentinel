@@ -12,7 +12,7 @@ const router = express.Router();
 router.get("/github", githubLogin);
 router.get("/github/callback", githubCallback);
 router.get("/me", verifyJWT, getCurrentUser);
-router.get("/logout", verifyJWT, logout);
+router.post("/logout", verifyJWT, logout);
 
 
 export default router;

@@ -8,7 +8,7 @@ export const getGitHubClient = async (userId) => {
   const user = await User.findById(userId).select("+githubAccessToken");
 
   if (!user) {
-    throw new ApiError(400, "Connected Github account not found");
+    throw new ApiError(404, "Connected GitHub account not found");
   }
 
   const accessToken = decryptToken(user.githubAccessToken);
@@ -26,11 +26,10 @@ export const getGitHubClient = async (userId) => {
       const errorData = await response.json().catch(() => ({}));
 
       const error = new ApiError(
-        401,
+        response.status,
         errorData.message || "Github API request failed",
       );
 
-      error.statusCode = response.status;
       throw error;
     }
 

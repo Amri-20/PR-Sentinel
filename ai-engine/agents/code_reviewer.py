@@ -7,10 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 load_dotenv()
 
-GOOGLE_API_KEY=os.getenv("GOOGLE_API_KEY")
-
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE_API_KEY not found in the environment variables")
+GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
 
 
@@ -56,15 +53,7 @@ class CodeReview(BaseModel):
     )
 
 
-MODEL_NAME="gemini-4-hydrogen"
-
-llm=ChatGoogleGenerativeAI(
-    model=MODEL_NAME,
-    google_api_key=GOOGLE_API_KEY,
-    temperature=0,
-)
-
-structured_llm=llm.with_structured_output(CodeReview)
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
 review_prompt = ChatPromptTemplate.from_messages([
     (
@@ -107,11 +96,19 @@ review_prompt = ChatPromptTemplate.from_messages([
 ])
 
 
-review_chain=review_prompt|structured_llm
-
 def review_code_diff(filename,diff):
     if not filename or not diff:
         raise ValueError("Filename and code difference are required")
+
+    if not GOOGLE_API_KEY:
+        raise ValueError("GEMINI_API_KEY or GOOGLE_API_KEY not found in the environment variables")
+
+    llm = ChatGoogleGenerativeAI(
+        model=MODEL_NAME,
+        google_api_key=GOOGLE_API_KEY,
+        temperature=0,
+    )
+    review_chain = review_prompt | llm.with_structured_output(CodeReview)
 
     response=review_chain.invoke({
         "filename":filename,
