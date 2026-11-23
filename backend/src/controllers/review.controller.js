@@ -2,6 +2,11 @@ import { getGitHubClient } from "../services/github.services.js";
 import { runCodeReview } from "../services/ai.service.js";
 import { ApiError } from "../utils/ApiError.js";
 import Review from "../models/review.model.js";
+import {
+  saveReview,
+  getReviewByPR,
+  getRepositoryReviews,
+} from "../services/review.service.js";
 
 const reviewPullRequest = async (req, res, next) => {
   try {
@@ -38,6 +43,14 @@ const reviewPullRequest = async (req, res, next) => {
       });
     }
 
+    const savedReview = await saveReview(
+      req.userId,
+      owner,
+      repo,
+      Number(number),
+      reviewResults,
+    );
+
     const persistedResults = reviewResults.map((result) => ({
       filename: result.filename,
       status: result.status,
@@ -68,6 +81,7 @@ const reviewPullRequest = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Pull request review completed",
+      reviewId: savedReview._id,
       pullRequest: {
         owner,
         repo,
@@ -81,4 +95,41 @@ const reviewPullRequest = async (req, res, next) => {
   }
 };
 
-export {reviewPullRequest}
+const getPullRequestReview = async (req, res, next) => {
+  try {
+    const { owner, repo, number } = req.params;
+
+    if (!/^\d+$/.test(number)) {
+      throw new ApiError(400, "Invalid pull request number");
+    }
+
+    const review = await getReviewByPR(req.userId, owner, repo, Number(number));
+
+    return res.status(200).json({
+      success: true,
+      message: "Pull request review fetched successfully",
+      review,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getRepositoryReviewHistory = async (req, res, next) => {
+  try {
+    const { owner, repo } = req.params;
+
+    const reviews = await getRepositoryReviews(req.userId, owner, repo);
+
+    return res.status(200).json({
+      success: true,
+      message: "Repository review history fetched successfully",
+      count: reviews.length,
+      reviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { reviewPullRequest, getPullRequestReview, getRepositoryReviewHistory };

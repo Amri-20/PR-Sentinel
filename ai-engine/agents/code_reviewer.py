@@ -53,7 +53,9 @@ class CodeReview(BaseModel):
     )
 
 
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+# MODEL_NAME = os.getenv("GEMINI_MODEL", "Gemini 2 Flash")
+# MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+MODEL_NAME = "gemini-3.5-flash-lite"
 
 review_prompt = ChatPromptTemplate.from_messages([
     (

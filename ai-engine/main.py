@@ -1,7 +1,8 @@
 import json
 import sys
 import os
-from graph.workflow import review_graph
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def run_code_review(filename, diff):
@@ -26,6 +27,7 @@ def run_code_review(filename, diff):
             },
             "error": None
         }
+    from graph.workflow import review_graph
 
     initial_state = {
         "filename": filename,
