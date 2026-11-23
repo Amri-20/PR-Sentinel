@@ -42,5 +42,19 @@ export function AuthProvider({ children }) {
     window.location.href = "/api/v1/auth/github";
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, error, setError, refreshUser, logout, connectGitHub }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        setError,
+        refreshUser,
+        logout,
+        connectGitHub,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
