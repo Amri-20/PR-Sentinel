@@ -1,33 +1,43 @@
+
 import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import { ApiError } from "../utils/ApiError.js";
-import { diff } from "util";
-import { app } from "../app.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const AI_ENGINE_DIR = path.resolve(__dirname, "../../../ai-engine");
 
-const PYTHON_PATH = path.join(AI_ENGINE_DIR, "venv", "Scripts", "python.exe");
+const defaultPythonPath = process.platform === "win32"
+  ? path.join(AI_ENGINE_DIR, ".venv", "Scripts", "python.exe")
+  : path.join(AI_ENGINE_DIR, ".venv", "bin", "python");
+
+const PYTHON_PATH = process.env.PYTHON_EXECUTABLE || defaultPythonPath;
 
 const MAIN_SCRIPT = path.join(AI_ENGINE_DIR, "main.py");
 
-export const runCodeReview = (filename, dir) => {
+export const runCodeReview = (filename, codeDiff) => {
   return new Promise((resolve, reject) => {
-    if (!filename || !diff) {
+    if (!filename || !codeDiff) {
       return reject(new ApiError(400, "Filename and code diff are required"));
     }
 
-    const python = spawn(PYTHON_PATH, [MAIN_SCRIPT], {
-      cwd: AI_ENGINE_DIR,
-      windowsHide: true,
-    });
+    let python;
+    try {
+      python = spawn(PYTHON_PATH, [MAIN_SCRIPT], {
+        cwd: AI_ENGINE_DIR,
+        windowsHide: true,
+      });
+    } catch (error) {
+      reject(new ApiError(500, `Failed to start Python: ${error.message}`));
+      return;
+    }
 
     let stdout = "";
     let stderr = "";
     let settled = false;
+    const maxOutputBytes = 5 * 1024 * 1024;
 
     const timeout = setTimeout(() => {
       python.kill();
@@ -39,15 +49,16 @@ export const runCodeReview = (filename, dir) => {
       settled = true;
       clearTimeout(timeout);
 
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
+      if (error) reject(error);
+      else resolve(result);
     };
 
     python.stdout.on("data", (data) => {
       stdout += data.toString();
+      if (Buffer.byteLength(stdout) > maxOutputBytes) {
+        python.kill();
+        finish(new ApiError(500, "AI review process returned too much output"));
+      }
     });
 
     python.stderr.on("data", (data) => {
@@ -58,16 +69,7 @@ export const runCodeReview = (filename, dir) => {
       finish(new ApiError(500, `Failed to start python: ${error.message}`));
     });
 
-    python.on("close", (code) => {
-      if (code != 0) {
-        return finish(
-          new ApiError(
-            500,
-            stderr.trim() || `Python process exited with code ${code}`,
-          ),
-        );
-      }
-
+    python.on("close", (code, signal) => {
       try {
         const result = JSON.parse(stdout);
 
@@ -79,7 +81,13 @@ export const runCodeReview = (filename, dir) => {
 
         finish(null, result.review);
       } catch {
-        finish(new ApiError(500, "Python returned an invalid JSON response"));
+        finish(
+          new ApiError(
+            500,
+            stderr.trim() ||
+              `Python process exited ${signal ? `after ${signal}` : `with code ${code}`}`,
+          ),
+        );
       }
     });
 
@@ -89,6 +97,6 @@ export const runCodeReview = (filename, dir) => {
       );
     });
 
-    python.stdin.end(JSON.stringify({ filename, diff }));
+    python.stdin.end(JSON.stringify({ filename, diff: codeDiff }));
   });
 };

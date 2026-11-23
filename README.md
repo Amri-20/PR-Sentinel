@@ -47,7 +47,7 @@ Backend:
 http://localhost:5000
 
 Health endpoint:
-http://localhost:5000/api/health
+http://localhost:5000/api/v1/health
 
 ## Project Status
 

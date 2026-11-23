@@ -12,7 +12,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`PR Sentinel server running on port ${PORT}`);
-      console.log(`Health: http://localhost:${PORT}/api/health`);
+      console.log(`Health: http://localhost:${PORT}/api/v1/health`);
     });
   } catch (error) {
     console.error("Server startup failed:", error.message);

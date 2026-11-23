@@ -12,7 +12,7 @@ def route_after_input(state):
 
 
 def route_after_review(state):
-    if state["status"] == "Completed":
+    if state["status"] == "completed":
         return "Validate review"
 
     return END

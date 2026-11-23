@@ -1,12 +1,21 @@
 import { getGitHubClient } from "../services/github.services.js";
 
+const getAllPages = async (fetchPage) => {
+    const items = [];
+    for (let page = 1; ; page += 1) {
+        const currentPage = await fetchPage(page);
+        items.push(...currentPage);
+        if (currentPage.length < 100) return items;
+    }
+};
+
 export const getRepositories = async (req, res, next) => {
     try {
         const github = await getGitHubClient(req.userId);
 
-        const repositories = await github(
-            "/user/repos?visibility=public&affiliation=owner,collaborator,organization&sort=updated&per_page=100"
-        );
+        const repositories = await getAllPages((page) => github(
+            `/user/repos?visibility=all&affiliation=owner,collaborator,organization&sort=updated&per_page=100&page=${page}`
+        ));
 
         const formattedRepositories = repositories.map((repo) => ({
             id: repo.id,
@@ -46,7 +55,7 @@ export const getPullRequests = async (req, res, next) => {
         const endpoint =
             `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls?state=open&sort=updated&direction=desc&per_page=100`;
 
-        const pullRequests = await github(endpoint);
+        const pullRequests = await getAllPages((page) => github(`${endpoint}&page=${page}`));
 
         const formattedPRs = pullRequests.map((pr) => ({
             id: pr.id,
@@ -93,9 +102,9 @@ export const getPullRequestFiles = async (req, res, next) => {
 
         const github = await getGitHubClient(req.userId);
 
-        const files = await github(
-            `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100`
-        );
+        const files = await getAllPages((page) => github(
+            `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100&page=${page}`
+        ));
 
         const formattedFiles = files.map((file) => ({
             filename: file.filename,

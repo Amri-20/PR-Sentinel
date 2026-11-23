@@ -2,6 +2,15 @@ import { ShieldCheck } from "lucide-react";
 import Github from "../Components/GithubIcon";
 
 function Home({ error, onConnectGitHub }) {
+  const authError = new URLSearchParams(window.location.search).get("auth_error");
+  const message =
+    error ||
+    (authError === "github_denied"
+      ? "GitHub authorization was cancelled."
+      : authError
+        ? "GitHub authentication failed. Please try again."
+        : "");
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center">
@@ -20,7 +29,7 @@ function Home({ error, onConnectGitHub }) {
           <Github size={21} />
           Continue with GitHub
         </button>
-        {error && <p className="text-red-400 text-sm mt-5">{error}</p>}
+        {message && <p className="text-red-400 text-sm mt-5">{message}</p>}
       </div>
     </div>
   );

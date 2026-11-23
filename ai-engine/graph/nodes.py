@@ -1,4 +1,4 @@
-from agents.code_reviewer import review_code_diff,CodeReview
+from agents.code_reviewer import CodeReview, review_code_diff
 from pydantic import ValidationError
 
 def validate_input(state):
@@ -45,10 +45,10 @@ def validate_review(state):
         }
 
     try:
-        validate_review=CodeReview.model_validate(review)
+        validated_review = CodeReview.model_validate(review)
 
         return {
-            "review":validate_review.model_dump(),
+            "review":validated_review.model_dump(),
             "status":"completed",
             "error":None
         }

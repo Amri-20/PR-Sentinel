@@ -1,4 +1,4 @@
 import api from "./api";
 
-export const getCurrentUser = () => api.get("/v1/auth/me");
-export const logout = () => api.get("/v1/auth/logout");
+export const getCurrentUser = () => api.get("/auth/me");
+export const logout = () => api.get("/auth/logout");

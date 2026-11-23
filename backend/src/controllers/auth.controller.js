@@ -1,10 +1,9 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-// import { encryptToken } from "../utils/tokenEncryption.js";
 import { encryptToken } from "../utils/tokenEncryption.utils.js";
 
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const cookieOptions = {
   httpOnly: true,
@@ -15,6 +14,19 @@ const cookieOptions = {
 
 // Step 1: Redirect user to GitHub
 const githubLogin = (req, res) => {
+  if (
+    !process.env.GITHUB_CLIENT_ID ||
+    !process.env.GITHUB_CLIENT_SECRET ||
+    !process.env.GITHUB_CALLBACK_URL ||
+    !process.env.JWT_SECRET ||
+    !process.env.ENCRYPTION_KEY
+  ) {
+    return res.status(500).json({
+      success: false,
+      message: "GitHub OAuth is not configured",
+    });
+  }
+
   const state = crypto.randomBytes(32).toString("hex");
 
   res.cookie("github_oauth_state", state, {
@@ -25,7 +37,9 @@ const githubLogin = (req, res) => {
   const params = new URLSearchParams({
     client_id: process.env.GITHUB_CLIENT_ID,
     redirect_uri: process.env.GITHUB_CALLBACK_URL,
-    scope: "read:user public_repo",
+    // `repo` is required by GitHub's classic OAuth flow to read private
+    // repositories as well. The application only uses read endpoints.
+    scope: "read:user repo",
     state,
   });
 
@@ -60,6 +74,15 @@ const githubCallback = async (req, res) => {
       return res.status(400).send("Authorization code missing");
     }
 
+    if (
+      !process.env.GITHUB_CLIENT_ID ||
+      !process.env.GITHUB_CLIENT_SECRET ||
+      !process.env.GITHUB_CALLBACK_URL ||
+      !process.env.JWT_SECRET
+    ) {
+      throw new Error("GitHub OAuth is not configured");
+    }
+
     // Exchange authorization code for access token
     const tokenResponse = await fetch(
       "https://github.com/login/oauth/access_token",
@@ -73,6 +96,7 @@ const githubCallback = async (req, res) => {
           client_id: process.env.GITHUB_CLIENT_ID,
           client_secret: process.env.GITHUB_CLIENT_SECRET,
           code,
+          redirect_uri: process.env.GITHUB_CALLBACK_URL,
         }),
       },
     );
@@ -149,27 +173,31 @@ const githubCallback = async (req, res) => {
 };
 
 // Step 3: Get logged-in user
-const getCurrentUser = async (req, res) => {
-  const user = await User.findById(req.userId);
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
 
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "User not found",
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        githubId: user.githubId,
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+      },
     });
+  } catch (error) {
+    next(error);
   }
-
-  return res.status(200).json({
-    success: true,
-    user: {
-      id: user._id,
-      githubId: user.githubId,
-      username: user.username,
-      name: user.name,
-      email: user.email,
-      avatarUrl: user.avatarUrl,
-    },
-  });
 };
 
 // Step 4: Logout

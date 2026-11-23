@@ -19,6 +19,11 @@ import {
   getPullRequests,
 } from "../services/pullRequestApi";
 import { getRepositories } from "../services/repositoryApi";
+import ReviewResults from "../Components/Review/ReviewResults";
+import {
+  runPullRequestReview,
+  getPullRequestReview,
+} from "../services/reviewApi";
 
 function Dashboard() {
   const { user, error: authError, refreshUser, logout } = useAuth();
@@ -27,6 +32,9 @@ function Dashboard() {
   const [pullRequests, setPullRequests] = useState([]);
   const [selectedPR, setSelectedPR] = useState(null);
   const [files, setFiles] = useState([]);
+  const [reviewResults, setReviewResults] = useState([]);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewAvailable, setReviewAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
@@ -86,12 +94,49 @@ function Dashboard() {
       setActionLoading(true);
       setError("");
       setSelectedPR(pullRequest);
+      setReviewResults([]);
+      setReviewAvailable(false);
+
       const response = await getPullRequestFiles(selectedRepo, pullRequest);
       setFiles(response.data.files);
+
+      try {
+        const reviewResponse = await getPullRequestReview(
+          selectedRepo,
+          pullRequest,
+        );
+
+        setReviewResults(reviewResponse.data.review.results);
+        setReviewAvailable(true);
+      } catch (reviewErr) {
+        if (reviewErr.response?.status !== 404) {
+          throw reviewErr;
+        }
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Unable to fetch changed files");
+      setError(
+        err.response?.data?.message || "Unable to fetch pull request data",
+      );
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const runAIReview = async () => {
+    try {
+      setReviewLoading(true);
+      setReviewResults([]);
+      setReviewAvailable(false);
+      setError("");
+
+      const response = await runPullRequestReview(selectedRepo, selectedPR);
+
+      setReviewResults(response.data.results);
+      setReviewAvailable(true);
+    } catch (err) {
+      setError(err.response?.data?.message || "Unable to complete AI review");
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -180,6 +225,20 @@ function Dashboard() {
               <h2 className="text-xl font-bold mb-2">
                 #{selectedPR.number} {selectedPR.title}
               </h2>
+              <button
+                onClick={runAIReview}
+                disabled={reviewLoading || actionLoading}
+                className="flex items-center gap-2 px-4 py-2 mb-6 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+              >
+                {reviewLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Reviewing...
+                  </>
+                ) : (
+                  "Run AI Review"
+                )}
+              </button>
               <p className="text-zinc-400 text-sm mb-7">
                 {selectedPR.author.username} · {selectedPR.headBranch} →{" "}
                 {selectedPR.baseBranch}
@@ -196,6 +255,15 @@ function Dashboard() {
                     <CodeDiff key={file.filename} file={file} />
                   ))}
                 </div>
+              )}
+              {reviewLoading && (
+                <div className="text-sm text-indigo-400 py-4">
+                  AI is reviewing your pull request...
+                </div>
+              )}
+
+              {reviewAvailable && !reviewLoading && (
+                <ReviewResults results={reviewResults} />
               )}
             </>
           )}

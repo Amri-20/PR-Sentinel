@@ -1,9 +1,6 @@
 import json
 import sys
 import os
-from graph.workflow import review_graph
-
-
 def run_code_review(filename, diff):
 
     # Temporary mock mode for integration testing
@@ -26,6 +23,10 @@ def run_code_review(filename, diff):
             },
             "error": None
         }
+
+    # Importing the workflow initializes the real Gemini client. Keep it out of
+    # mock mode so local process testing does not need an API key or dependency.
+    from graph.workflow import review_graph
 
     initial_state = {
         "filename": filename,

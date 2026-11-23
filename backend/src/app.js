@@ -11,6 +11,10 @@ import repositoryRoutes from "./routes/repository.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 
 const app = express();
+const frontendOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 // Security middleware
 app.use(helmet());
@@ -18,7 +22,15 @@ app.use(helmet());
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin(origin, callback) {
+      // Requests made through Vite's proxy have no Origin header, while browser
+      // requests must come from an explicitly configured frontend.
+      if (!origin || frontendOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
@@ -49,10 +61,10 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use("/api", apiLimiter);
+app.use("/api/v1", apiLimiter);
 
 // Health check
-app.get("/api/health", (req, res) => {
+app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "PR Sentinel API is running",
@@ -62,9 +74,9 @@ app.get("/api/health", (req, res) => {
 // Routes
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/github", githubRoutes);
-app.use("/api/repositories", repositoryRoutes);
-app.use("/api/reviews", reviewRoutes);
+app.use("/api/v1/github", githubRoutes);
+app.use("/api/v1/repositories", repositoryRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
