@@ -2,9 +2,9 @@ import Navbar from "../Components/Navbar";
 
 function DashboardLayout({ user, onLogout, children }) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="app-shell min-h-screen text-slate-100">
       <Navbar user={user} onLogout={onLogout} />
-      <main className="max-w-7xl mx-auto px-6 md:px-10 py-10">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">{children}</main>
     </div>
   );
 }

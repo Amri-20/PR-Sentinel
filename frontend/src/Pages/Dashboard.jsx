@@ -151,16 +151,17 @@ function Dashboard() {
 
   return (
     <DashboardLayout user={user} onLogout={logout}>
-      <div className="flex justify-between items-start mb-8">
+      <div className="mb-8 flex flex-col gap-4 border-b border-slate-700/70 pb-7 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Developer Dashboard</h1>
-          <p className="text-zinc-400">
-            Manage your repositories and pull requests.
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300/80">Code review command center</p>
+          <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">Developer Dashboard</h1>
+          <p className="text-sm text-slate-400">
+            Select a repository to inspect active changes and run a targeted review.
           </p>
         </div>
         <button
           onClick={refresh}
-          className="flex items-center gap-2 text-sm bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg"
+          className="focus-ring inline-flex items-center justify-center gap-2 rounded-md border border-slate-600 bg-[#1a2025] px-3.5 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-slate-500 hover:bg-[#222b31]"
         >
           <RefreshCw size={16} />
           Refresh
@@ -169,9 +170,9 @@ function Dashboard() {
       <ErrorMessage message={error || authError} />
       {!selectedRepo ? (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Your Repositories</h2>
-            <span className="text-zinc-400 text-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold tracking-tight text-slate-100">Repositories</h2>
+            <span className="rounded border border-slate-700 bg-[#171c20] px-2 py-1 text-xs text-slate-400">
               {repositories.length} repositories
             </span>
           </div>
@@ -181,28 +182,28 @@ function Dashboard() {
         <>
           <button
             onClick={backToRepositories}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white mb-7"
+            className="focus-ring mb-5 flex items-center gap-2 rounded text-sm text-slate-400 transition-colors hover:text-cyan-200"
           >
             <ArrowLeft size={17} />
             Back to repositories
           </button>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-7">
-            <div className="flex items-center gap-3 mb-3">
-              <Github size={23} />
-              <h2 className="text-xl font-bold">{selectedRepo.fullName}</h2>
+          <div className="surface mb-7 rounded-lg p-5 sm:p-6">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="rounded-md border border-cyan-300/20 bg-[#18343e] p-2 text-cyan-200"><Github size={19} /></div>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-100">{selectedRepo.fullName}</h2>
             </div>
-            <p className="text-zinc-400 text-sm">
+            <p className="text-sm leading-6 text-slate-400">
               {selectedRepo.description || "No description"}
             </p>
           </div>
           {!selectedPR ? (
             <>
-              <h2 className="text-xl font-semibold mb-6">
-                <GitPullRequest className="inline mr-2" />
+              <h2 className="mb-4 text-lg font-semibold tracking-tight text-slate-100">
+                <GitPullRequest className="mr-2 inline h-5 w-5 text-cyan-300" />
                 Open Pull Requests ({pullRequests.length})
               </h2>
               {actionLoading ? (
-                <Loader2 className="animate-spin" />
+                <div className="py-10 text-center"><Loader2 className="mx-auto animate-spin text-cyan-300" /></div>
               ) : (
                 <PullRequestList
                   pullRequests={pullRequests}
@@ -217,18 +218,18 @@ function Dashboard() {
                   setSelectedPR(null);
                   setFiles([]);
                 }}
-                className="text-zinc-400 hover:text-white flex items-center gap-2 mb-6"
+                className="focus-ring mb-5 flex items-center gap-2 rounded text-sm text-slate-400 transition-colors hover:text-cyan-200"
               >
                 <ArrowLeft size={17} />
                 Back to pull requests
               </button>
-              <h2 className="text-xl font-bold mb-2">
+              <h2 className="mb-2 text-xl font-semibold tracking-tight text-slate-100 sm:text-2xl">
                 #{selectedPR.number} {selectedPR.title}
               </h2>
               <button
                 onClick={runAIReview}
                 disabled={reviewLoading || actionLoading}
-                className="flex items-center gap-2 px-4 py-2 mb-6 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+                className="focus-ring mb-5 flex items-center gap-2 rounded-md border border-[#4c8599] bg-[#245466] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#2e687b] disabled:opacity-50"
               >
                 {reviewLoading ? (
                   <>
@@ -239,16 +240,16 @@ function Dashboard() {
                   "Run AI Review"
                 )}
               </button>
-              <p className="text-zinc-400 text-sm mb-7">
+              <p className="mb-7 border-b border-slate-700/70 pb-5 font-mono text-xs text-slate-500">
                 {selectedPR.author.username} · {selectedPR.headBranch} →{" "}
                 {selectedPR.baseBranch}
               </p>
-              <h3 className="font-semibold mb-4">
-                <FileCode2 className="inline mr-2" />
+              <h3 className="mb-4 font-semibold text-slate-200">
+                <FileCode2 className="mr-2 inline h-5 w-5 text-cyan-300" />
                 Changed Files ({files.length})
               </h3>
               {actionLoading ? (
-                <Loader2 className="animate-spin" />
+                <div className="py-10 text-center"><Loader2 className="mx-auto animate-spin text-cyan-300" /></div>
               ) : (
                 <div className="space-y-4">
                   {files.map((file) => (
@@ -257,7 +258,7 @@ function Dashboard() {
                 </div>
               )}
               {reviewLoading && (
-                <div className="text-sm text-indigo-400 py-4">
+                <div className="rounded-lg border border-cyan-300/15 bg-cyan-300/5 px-4 py-3 text-sm text-cyan-100">
                   AI is reviewing your pull request...
                 </div>
               )}

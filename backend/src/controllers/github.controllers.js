@@ -14,7 +14,7 @@ export const getRepositories = async (req, res, next) => {
         const github = await getGitHubClient(req.userId);
 
         const repositories = await getAllPages((page) => github(
-            `/user/repos?visibility=all&affiliation=owner,collaborator,organization&sort=updated&per_page=100&page=${page}`
+            `/user/repos?visibility=all&affiliation=owner&sort=updated&per_page=100&page=${page}`
         ));
 
         const formattedRepositories = repositories.map((repo) => ({

@@ -5,19 +5,19 @@ function RepositoryCard({ repository, onOpen }) {
   return (
     <button
       onClick={() => onOpen(repository)}
-      className="text-left bg-zinc-900 border border-zinc-800 hover:border-indigo-500 rounded-xl p-5 transition"
+      className="focus-ring group surface flex min-h-48 flex-col rounded-lg p-5 text-left transition-colors hover:border-[#4c8599] hover:bg-[#192126]"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Github size={19} />
-          <h3 className="font-semibold">{repository.name}</h3>
+          <Github size={18} className="text-slate-400" />
+          <h3 className="font-semibold tracking-tight text-slate-100">{repository.name}</h3>
         </div>
-        <ExternalLink size={16} className="text-zinc-500" />
+        <ExternalLink size={16} className="text-slate-600 transition-colors group-hover:text-cyan-300" />
       </div>
-      <p className="text-sm text-zinc-400 line-clamp-2 min-h-10 mb-5">
+      <p className="mb-6 min-h-10 text-sm leading-5 text-slate-400 line-clamp-2">
         {repository.description || "No description available"}
       </p>
-      <div className="flex gap-4 text-xs text-zinc-400">
+      <div className="mt-auto flex gap-4 border-t border-slate-700/70 pt-4 text-xs text-slate-400">
         <span className="flex items-center gap-1">
           <Star size={14} />
           {repository.stars}
@@ -26,7 +26,7 @@ function RepositoryCard({ repository, onOpen }) {
           <GitFork size={14} />
           {repository.forks}
         </span>
-        <span>{repository.language || "Unknown"}</span>
+        <span className="ml-auto text-slate-500">{repository.language || "Unknown"}</span>
       </div>
     </button>
   );

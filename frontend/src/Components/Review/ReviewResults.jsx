@@ -1,9 +1,9 @@
 const severityStyles = {
-  critical: "bg-red-500/15 text-red-400 border-red-500/30",
-  high: "bg-orange-500/15 text-orange-400 border-orange-500/30",
-  medium: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
-  low: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-  info: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
+  critical: "bg-rose-400/12 text-rose-300 border-rose-400/30",
+  high: "bg-orange-400/12 text-orange-300 border-orange-400/30",
+  medium: "bg-amber-300/12 text-amber-200 border-amber-300/25",
+  low: "bg-sky-400/12 text-sky-300 border-sky-400/25",
+  info: "bg-slate-400/10 text-slate-300 border-slate-400/20",
 };
 
 const categoryStyles = {
@@ -41,27 +41,30 @@ function ReviewResults({ results = [] }) {
 
   if (results.length === 0) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 text-zinc-400">
-        No review results available.
+    <div className="surface-muted rounded-lg p-6 text-sm text-slate-400">
+        No review results are available yet.
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold mb-2">AI Review Results</h3>
+      <div className="surface rounded-lg p-5 sm:p-6">
+        <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300/80">Review report</p><h3 className="mt-1 text-xl font-semibold tracking-tight text-slate-100">AI Review Results</h3></div>
+          <p className="text-xs text-slate-500">Generated for this pull request</p>
+        </div>
 
-        <p className="text-sm text-zinc-400 mb-5">
+        <p className="mb-5 text-sm text-slate-400">
           {completedResults.length} files reviewed · {skippedResults.length}{" "}
           files skipped · {failedResults.length} files failed
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {Object.entries(severityCounts).map(([severity, count]) => (
-            <div key={severity} className="bg-zinc-800/70 rounded-lg p-3">
-              <p className="text-xs text-zinc-400 capitalize">{severity}</p>
-              <p className="text-2xl font-bold mt-1">{count}</p>
+            <div key={severity} className="rounded-md border border-slate-700/70 bg-[#14191d] p-3">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{severity}</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-200">{count}</p>
             </div>
           ))}
         </div>
@@ -73,18 +76,18 @@ function ReviewResults({ results = [] }) {
         return (
           <div
             key={`${item.filename}-${index}`}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5"
+            className="surface rounded-lg p-5"
           >
-            <h4 className="font-mono text-sm text-indigo-400 break-all mb-3">
+            <h4 className="mb-3 font-mono text-xs text-cyan-300 break-all">
               {item.filename}
             </h4>
 
             {review.summary && (
-              <p className="text-sm text-zinc-300 mb-4">{review.summary}</p>
+              <p className="mb-4 text-sm leading-6 text-slate-300">{review.summary}</p>
             )}
 
             {(review.findings || []).length === 0 ? (
-              <p className="text-sm text-emerald-400">
+              <p className="text-sm text-emerald-300">
                 No issues found in this file.
               </p>
             ) : (
@@ -92,7 +95,7 @@ function ReviewResults({ results = [] }) {
                 {review.findings.map((finding, findingIndex) => (
                   <div
                     key={findingIndex}
-                    className="border border-zinc-800 rounded-lg p-4"
+                    className="rounded-md border border-slate-700/80 bg-[#14191d] p-4"
                   >
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                       <span
@@ -119,21 +122,21 @@ function ReviewResults({ results = [] }) {
                       )}
                     </div>
 
-                    <h5 className="font-semibold text-white mb-2">
+                    <h5 className="mb-2 font-semibold text-slate-100">
                       {finding.title}
                     </h5>
 
-                    <p className="text-sm text-zinc-400 mb-4">
+                    <p className="mb-4 text-sm leading-6 text-slate-400">
                       {finding.description}
                     </p>
 
                     {(finding.suggestedFix || finding.suggested_fix) && (
-                      <div className="bg-zinc-800/70 rounded-lg p-3">
-                        <p className="text-xs font-semibold text-emerald-400 mb-2">
+                      <div className="rounded-md border border-cyan-300/15 bg-[#143039]/45 p-3">
+                        <p className="mb-2 text-xs font-semibold text-cyan-200">
                           Suggested Fix
                         </p>
 
-                        <p className="text-sm text-zinc-300">
+                        <p className="text-sm leading-6 text-slate-300">
                           {finding.suggestedFix || finding.suggested_fix}
                         </p>
                       </div>
@@ -147,8 +150,8 @@ function ReviewResults({ results = [] }) {
       })}
 
       {skippedResults.length > 0 && (
-        <div className="bg-zinc-900 border border-yellow-500/20 rounded-xl p-5">
-          <h4 className="font-semibold text-yellow-400 mb-3">Skipped Files</h4>
+        <div className="rounded-lg border border-amber-300/20 bg-amber-300/5 p-5">
+          <h4 className="mb-3 font-semibold text-amber-200">Skipped Files</h4>
 
           {skippedResults.map((item, index) => (
             <div key={`${item.filename}-${index}`} className="text-sm mb-2">
@@ -164,8 +167,8 @@ function ReviewResults({ results = [] }) {
       )}
 
       {failedResults.length > 0 && (
-        <div className="bg-zinc-900 border border-red-500/20 rounded-xl p-5">
-          <h4 className="font-semibold text-red-400 mb-3">Files Not Reviewed</h4>
+        <div className="rounded-lg border border-rose-400/20 bg-rose-400/5 p-5">
+          <h4 className="mb-3 font-semibold text-rose-300">Files Not Reviewed</h4>
           {failedResults.map((item, index) => (
             <div key={`${item.filename}-${index}`} className="text-sm mb-2">
               <p className="text-zinc-300 font-mono break-all">{item.filename}</p>
