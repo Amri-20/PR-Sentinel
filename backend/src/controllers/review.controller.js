@@ -20,6 +20,13 @@ const reviewPullRequest = async (req, res, next) => {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${number}/files?per_page=100`,
     );
 
+    if (!Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No changed files found in this pull request",
+      });
+    }
+
     const reviewResults = [];
 
     for (const file of files) {
@@ -55,13 +62,14 @@ const reviewPullRequest = async (req, res, next) => {
     const completedCount = reviewResults.filter(
       (result) => result.status === "completed",
     ).length;
-    const reviewStatus = completedCount === reviewResults.length && reviewResults.length > 0
-      ? "completed"
-      : completedCount > 0
-        ? "partial"
-        : reviewResults.some((result) => result.status === "failed")
-          ? "failed"
-          : "partial";
+    const reviewStatus =
+      completedCount === reviewResults.length && reviewResults.length > 0
+        ? "completed"
+        : completedCount > 0
+          ? "partial"
+          : reviewResults.some((result) => result.status === "failed")
+            ? "failed"
+            : "partial";
 
     const savedReview = await Review.findOneAndUpdate(
       {
@@ -130,7 +138,9 @@ const getRepositoryReviewHistory = async (req, res, next) => {
       .sort({ updatedAt: -1 })
       .limit(100);
 
-    return res.status(200).json({ success: true, count: reviews.length, reviews });
+    return res
+      .status(200)
+      .json({ success: true, count: reviews.length, reviews });
   } catch (error) {
     next(error);
   }
