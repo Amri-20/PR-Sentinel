@@ -33,7 +33,7 @@ function Dashboard() {
   const [selectedPR, setSelectedPR] = useState(null);
   const [files, setFiles] = useState([]);
   const [reviewResults, setReviewResults] = useState([]);
-  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewLoadingPRId, setReviewLoadingPRId] = useState(null);
   const [reviewAvailable, setReviewAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -123,8 +123,10 @@ function Dashboard() {
   };
 
   const runAIReview = async () => {
+    const pullRequestId = selectedPR.id;
+
     try {
-      setReviewLoading(true);
+      setReviewLoadingPRId(pullRequestId);
       setReviewResults([]);
       setReviewAvailable(false);
       setError("");
@@ -136,9 +138,13 @@ function Dashboard() {
     } catch (err) {
       setError(err.response?.data?.message || "Unable to complete AI review");
     } finally {
-      setReviewLoading(false);
+      setReviewLoadingPRId((currentPRId) =>
+        currentPRId === pullRequestId ? null : currentPRId,
+      );
     }
   };
+
+  const reviewLoading = reviewLoadingPRId === selectedPR?.id;
 
   const backToRepositories = () => {
     setSelectedRepo(null);
