@@ -53,6 +53,14 @@ app.use(cookieParser());
 // HTTP request logging
 app.use(morgan("dev"));
 
+// Health check
+app.get("/api/v1/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "PR Sentinel API is running",
+  });
+});
+
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -62,14 +70,6 @@ const apiLimiter = rateLimit({
 });
 
 app.use("/api/v1", apiLimiter);
-
-// Health check
-app.get("/api/v1/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "PR Sentinel API is running",
-  });
-});
 
 // Routes
 app.use("/api/v1/users", userRouter);
